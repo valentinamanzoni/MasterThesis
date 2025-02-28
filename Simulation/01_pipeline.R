@@ -18,23 +18,6 @@ source("Simulation//fun//Study_design_fun_2.R")
 # set you folder path
 path_sim <- "Simulation"
 
-###########################################################
-######   SCENARIO AV2 #######
-###########################################################
-
-# 1) How many datasets?
-N <- 100
-
-# 6) how many individuals?
-nsim <- 100000
-
-scenario <- "Av2"
-load(paste0("Simulation/data for simulation/scenario_",scenario,".RData"))
-
-sim_test_list <- sim_mm_traj(nsim,N,scenario_obj = scenario_obj_Av2,seed=1258,scenario = "Av2")
-sim_test <- sim_test_list[[1]]
-sim_MP <- sim_test_list[[2]]
-
 # save simulation results 
 output_folder <-paste0(path_sim, "/", "Simulation Outputs")
 
@@ -45,41 +28,30 @@ if (!dir.exists(output_folder)) {
   message("Folder 'Simulation Outputs' already exists.")
 }
 
-save(sim_test, file = paste0(output_folder, "/", "sim_data_",scenario,"_",as.character(N),"_",as.character(nsim),".RData"))
-save(sim_MP, file = paste0(output_folder, "/", "sim_MP_",scenario,"_",as.character(N),"_",as.character(nsim),".RData"))
-message("Dataset saved in 'Simulation Outputs' folder.")
+# years in between follow-ups and corresponding age threshold for population based scenario
+# patients with age <= 78 years have follow ups every 6 years, > 78 every 3 years
+age_tr <- 78
+obs_t_int <- c(6,3)
 
-
-design_type <- "popstudy"
-
-####### CALL TO STUDY DESIGN FUNCTION ####
-if (design_type =="popstudy"){
-  age_tr <- 78
-  obs_t_int <- c(6,3)
-  pop <- popbased_study(sim_test,sim_MP, underreporting = FALSE,
-                             obs_t_int = obs_t_int, age_tr = age_tr)
-  
-  save(pop, file = paste0(output_folder, "/", "pop_study_",scenario,"_"
-                               ,as.character(N),"_",as.character(nsim),".RData"))
-  }else if (design_type =="GP")
-{
-  final_data <- gp_study()
-}else
-  stop("Insert a valid design type")
-
-
-###########################################################
-######   SCENARIO B #######
-###########################################################
-# 10 000
-N <- 100
-
-# 6) how many individuals?
-nsim <- 10000
 scenario <- "B"
 load(paste0("Simulation/data for simulation/scenario_",scenario,".RData"))
 
-sim_test_listB <- sim_mm_traj(nsim,N,scenario_obj = scenario_obj_B,seed=1258,scenario = "B")
+
+###########################################################
+######   SCENARIO B: 2 Multimorbidity latent classes #######
+###########################################################
+
+# 10000 subject scenario
+# 1) How many datasets?
+N <- 100
+
+# 2) how many individuals?
+nsim <- 10000
+
+# Set seed for reproduce results 
+seed<- 1258
+
+sim_test_listB <- sim_mm_traj(nsim,N,scenario_obj = scenario_obj_B,seed=seed,scenario = "B")
 sim_testB <- sim_test_listB[[1]]
 sim_MPB <- sim_test_listB[[2]]
 
@@ -87,25 +59,29 @@ save(sim_testB, file = paste0(output_folder, "/", "sim_data_",scenario,"_",as.ch
 save(sim_MPB, file = paste0(output_folder, "/", "sim_MP_",scenario,"_",as.character(N),"_",as.character(nsim),".RData"))
 message("Dataset saved in 'Simulation Outputs' folder.")
 
+### Population based study
+
 pop <- popbased_study(sim_testB,sim_MPB, underreporting = FALSE,
                       obs_t_int = obs_t_int, age_tr = age_tr)
 
 save(pop, file = paste0(output_folder, "/", "pop_study_",scenario,"_"
                         ,as.character(N),"_",as.character(nsim),".RData"))
 
+### Irregular visits
+
 rv_pop <- rv_study_new(sim_testB,sim_MPB, underreporting = FALSE)
 
 save(rv_pop, file = paste0(output_folder, "/", "rv_pop_study_",scenario,"_"
                         ,as.character(N),"_",as.character(nsim),".RData"))
 
-# scenario da 3000
+# 3000 subject scenario
 # 1) How many datasets?
 N <- 100
 
-# 6) how many individuals?
+# 2) how many individuals?
 nsim <- 3000
 
-seed = 1259
+seed <- 1259
 
 sim_test_listB <- sim_mm_traj(nsim,N,scenario_obj = scenario_obj_B,seed=seed,scenario = "B")
 sim_testB <- sim_test_listB[[1]]
@@ -128,23 +104,36 @@ save(rv_pop, file = paste0(output_folder, "/", "rv_pop_study_",scenario,"_"
                            ,as.character(N),"_",as.character(nsim),".RData"))
 
 
-#scenario 100 000
+#######################################
+#######  UNDERREPORTING ###############
+#######################################
+
+source("Simulation/fun/Study_design_fun_2.R")
+set.seed(42)
+
+# 1) which study type?
+study_type <- "pop_study"
+
+# 2) How many datasets?
 N <- 100
-nsim <- 100000
-seed <- 1260
-path_sim <- "Simulation"
-output_folder <-paste0(path_sim, "/", "Simulation Outputs")
 
-sim_test_listB <- sim_mm_traj(nsim,N,scenario_obj = scenario_obj_B,seed=seed,scenario = "B")
-sim_testB <- sim_test_listB[[1]]
-sim_MPB <- sim_test_listB[[2]]
+# 3) how many individuals?
+nsim <- 3000
 
-save(sim_testB, file = paste0(output_folder, "/", "sim_data_",scenario,"_",as.character(N),"_",as.character(nsim),".RData"))
-save(sim_MPB, file = paste0(output_folder, "/", "sim_MP_",scenario,"_",as.character(N),"_",as.character(nsim),".RData"))
-message("Dataset saved in 'Simulation Outputs' folder.")
+# 4) Which scenario?
+scenario <- "B"
 
-pop <- popbased_study(sim_testB,sim_MPB, underreporting = FALSE,
-                      obs_t_int = obs_t_int, age_tr = age_tr)
+# load the data 
+load(paste0("Simulation/Simulation Outputs/",study_type,"_",scenario,"_"
+            ,as.character(N),"_",as.character(nsim),".RData"))
 
-save(pop, file = paste0(output_folder, "/", "pop_study_",scenario,"_"
-                        ,as.character(N),"_",as.character(nsim),".RData"))
+# 5) list of underreported disease
+underrep_diseases <- c("dementia", "depression_mood_dis", "chronic_kidney_dis", "osteoarthr_degen_joint_dis", "deafness_hearing_loss")
+# 6) vector with corresponding underreporting probabilities
+diseases_prob <- c(0.2,0.2,0.2,0.2, 0.2)
+
+pop_under <- apply_underrep(pop, underrep_diseases , diseases_prob )
+
+save(pop_under, file = paste0(output_folder, "/underrep_", study_type,"_",scenario,"_"
+                           ,as.character(N),"_",as.character(nsim),".RData"))
+
