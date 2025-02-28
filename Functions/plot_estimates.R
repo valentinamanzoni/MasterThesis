@@ -441,7 +441,8 @@ dotplot_rel_bias_1_2<- function(df, true_param,nsim,ST=NULL){
       linetype = "Reference Line" 
     ) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          plot.title = element_text(hjust = 0.5, face = "bold")) +
+          plot.title = element_text(hjust = 0.5, face = "bold"),
+          legend.position = "bottom") +
     scale_color_manual(values = c(  "lightblue", "darkblue"))+
     scale_linetype_manual(values = c("Benchmark Avg Rel Bias" = "dashed"))
   

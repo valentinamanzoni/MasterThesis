@@ -126,14 +126,14 @@ scenario <- "B"
 # load the data 
 get_pop <- load(paste0("Simulation/Simulation Outputs/",study_type,"_",scenario,"_"
             ,as.character(N),"_",as.character(nsim),".RData"))
-pop <- get(get_pop)
+pop_loaded <- get(get_pop)
 
 # 5) list of underreported disease
 underrep_diseases <- c("dementia", "depression_mood_dis", "chronic_kidney_dis", "osteoarthr_degen_joint_dis", "deafness_hearing_loss")
 # 6) vector with corresponding underreporting probabilities
 diseases_prob <- c(0.2,0.2,0.2,0.2, 0.2)
 
-pop_under <- apply_underrep(pop, underrep_diseases , diseases_prob)
+pop_under <- apply_underrep(pop_loaded, underrep_diseases , diseases_prob)
 
 save(pop_under, file = paste0(output_folder, "/underrep_", study_type,"_",scenario,"_"
                            ,as.character(N),"_",as.character(nsim),".RData"))
