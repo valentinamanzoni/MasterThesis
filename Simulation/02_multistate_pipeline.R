@@ -41,6 +41,7 @@ source("Functions//Apply_LCA.R")
 
 pop<- apply_LCA(pop,sim_obj, scenario)
 head(pop)
+
 ############## Multistate ################
 #######################################
 source("Functions//misc_matrix.R")
@@ -81,24 +82,6 @@ print_mean_m_mat(m_approx_array)
 source("Functions//msm.R")
 source("Functions//nhm.R")
 source("Functions//flexsurv.R")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # auxiliary functions:
 create_unique_folder <- function(prefix = "results") {
@@ -159,8 +142,7 @@ run_multistate_wrapper <- function(dataset) {
 
 
 ########### split by dataset_id #########
-# run in parallel
-# group pop by dataset_id
+# run in parallel, group pop by dataset_id
 cores <- min(detectCores() -5, 24 ) #modify number of cores
 plan(multisession, workers=cores)  # Or `plan(multiprocess)` for cross-platform compatibility
 

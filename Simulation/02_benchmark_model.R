@@ -18,6 +18,7 @@ nsim <- 10000
 sim_obj_name <- load(paste0("Simulation/data for simulation/scenario_",scenario,".RData"))
 sim_obj <- get(sim_obj_name)
 colnames(sim_obj$pattern_obj$obj$y)<- tolower(colnames(sim_obj$pattern_obj$obj$y))
+
 # import the simulated data with exact time of transitions and exact MP
 load(paste0("Simulation/Simulation Outputs/sim_MP_",scenario,"_",N,"_",nsim,".RData"))
 
@@ -29,7 +30,7 @@ sim_MPB <- sim_MPB %>%
 
 sim_MPB <- sim_MPB %>% 
   relocate(Age_exit, .after = Age)
-#view(sim_MPB) 
+
 
 sim_MPB <- sim_MPB %>%
   mutate(death = ifelse(Age_exit < Age_death, 0, 1))
@@ -53,6 +54,8 @@ create_unique_folder <- function(prefix = "results") {
   folder_name <- paste0(prefix, "_", timestamp,"_imp")
   return(folder_name)
 }
+
+## fit the benchmark model on exact time of transitions and exact states
 run_multistate_ex <- function(pop,result_folder){
   
   if (scenario=="B"){
@@ -86,7 +89,7 @@ datasets <- split(pop, pop$dataset_id)
 result_folder <-  file.path("results",create_unique_folder(paste0("results")))
 dir.create(result_folder, recursive = TRUE)
 
-# call function to apply nhm, msm, and flexsurv in parallel
+
 tic("Multistate in parallel")
 future_lapply(datasets, FUN = run_multistate_wrapper_ex)
 toc()
@@ -95,9 +98,12 @@ toc()
 
 ########################################
 ######## Estimated Parameters###########
+#######################################
+# extract the parameters estimated by the bechmark model
 library(ggplot2)
 source("Functions//extract_performance.R")
-#results_path <- paste0("results/results_20250115_102726/")
+
+
 # folder where estimates will be saved
 result_folder <-  "results/results_estimates"
 # folder from which the fitted models are imported
@@ -183,10 +189,3 @@ if (!load_model){
   save(model_est, file =paste0(result_folder,"/model_est_ET_",scenario,"_", nsim,".RData"))
 }
 
-source("Functions//plot_estimates.R")
-boxplot_param(param_df,true_param,nsim)
-dotplot_param(param_df,true_param,nsim)
-source("Functions//performance_measures.R")
-pm_df <- compute_pm(param_df,true_param) 
-#pm_df <- compute_pm2(param_df,true_param)
-dotplot_rel_bias(param_df, true_param,nsim)
